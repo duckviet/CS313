@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.75.5",
     "@turf/turf": "^7.2.0",
     "chart.js": "^4.4.1",
     "date-fns": "^3.3.1",

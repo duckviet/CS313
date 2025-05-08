@@ -1,6 +1,6 @@
 export interface AirQualityData {
   id: string;
-  city:string;
+  city: string;
   location: string;
   timestamp: Date;
   aqi: number;
@@ -26,10 +26,16 @@ export interface HistoricalData {
   o3: number;
 }
 
-export type AQICategory = 'good' | 'moderate' | 'unhealthy-sensitive' | 'unhealthy' | 'very-unhealthy' | 'hazardous';
+export type AQICategory =
+  | "good"
+  | "moderate"
+  | "unhealthy-sensitive"
+  | "unhealthy"
+  | "very-unhealthy"
+  | "hazardous";
 
 export interface LocationData {
-  id: string;
+  id: number;
   name: string;
   latitude: number;
   longitude: number;

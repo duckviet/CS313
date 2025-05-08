@@ -20,6 +20,7 @@ const Dashboard: React.FC = () => {
   const { locations, loading: locationsLoading } = useNearbyLocations();
 
   const handleLocationChange = (location: {
+    id: number;
     name: string | null;
     lat: number | null;
     lon: number | null;
@@ -43,7 +44,7 @@ const Dashboard: React.FC = () => {
             <>
               <AQIDisplay data={currentData} />
               <PollutantsOverview data={currentData} className="mt-6" />
-              <HistoricalDataSection />
+              <HistoricalDataSection data={currentLocation} />
             </>
           ) : (
             <Card className="p-8 text-center">
