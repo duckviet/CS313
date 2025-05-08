@@ -1,4 +1,5 @@
 // api.ts
+import VIETNAMPROVINCES from "../constants/vietNamProvince.constant";
 import { AirQualityData, HistoricalData, LocationData } from "../types";
 import { calculateAQICategory } from "../utils/aqiCalculator";
 
@@ -60,66 +61,7 @@ export const fetchNearbyLocations = async (
   count: number = 10
 ): Promise<LocationData[]> => {
   // Define nearby city coordinates
-  const cities = [
-    { id: 9, name: "An Giang", lat: 10.5215836, lon: 105.1258955 },
-    { id: 28, name: "Bà Rịa-Vũng Tàu", lat: 10.5417397, lon: 107.2429976 },
-    { id: 57, name: "Bắc Giang", lat: 21.2819921, lon: 106.1974769 },
-    { id: 32, name: "Bạc Liêu", lat: 9.2940027, lon: 105.7215663 },
-    { id: 56, name: "Bắc Ninh", lat: 21.121444, lon: 106.1110501 },
-    { id: 36, name: "Bến Tre", lat: 10.2433556, lon: 106.375551 },
-    { id: 61, name: "Bình Dương", lat: 11.3254024, lon: 106.477017 },
-    { id: 41, name: "Bình Định", lat: 14.1665324, lon: 108.902683 },
-    { id: 5, name: "Bình Phước", lat: 11.7511894, lon: 106.7234639 },
-    { id: 38, name: "Bình Thuận", lat: 11.0903703, lon: 108.0720781 },
-    { id: 31, name: "Cà Mau", lat: 9.1526728, lon: 105.1960795 },
-    { id: 63, name: "Cần Thơ", lat: 10.0341851, lon: 105.7225507 },
-    { id: 21, name: "Cao Bằng", lat: 22.635689, lon: 106.2522143 },
-    { id: 43, name: "Đà Nẵng", lat: 16.0544068, lon: 108.2021667 },
-    { id: 3, name: "Đắk Lắk", lat: 12.7100116, lon: 108.2377519 },
-    { id: 2, name: "Đắk Nông", lat: 12.2646476, lon: 107.609806 },
-    { id: 11, name: "Điện Biên", lat: 21.8042309, lon: 103.1076525 },
-    { id: 4, name: "Gia Lai", lat: 13.8078943, lon: 108.109375 },
-    { id: 20, name: "Hà Giang", lat: 22.8025588, lon: 104.9784494 },
-    { id: 60, name: "Hà Nam", lat: 20.5835196, lon: 105.92299 },
-    { id: 53, name: "Hà Nội", lat: 21.0277644, lon: 105.8341598 },
-    { id: 15, name: "Hà Tĩnh", lat: 18.3559537, lon: 105.8877494 },
-    { id: 59, name: "Hải Dương", lat: 20.9373413, lon: 106.3145542 },
-    { id: 47, name: "Hải Phòng", lat: 20.8449115, lon: 106.6880841 },
-    { id: 33, name: "Hậu Giang", lat: 9.757898, lon: 105.6412527 },
-    { id: 29, name: "Hồ Chí Minh", lat: 10.8230989, lon: 106.6296638 },
-    { id: 48, name: "Hòa Bình", lat: 20.6861265, lon: 105.3131185 },
-    { id: 30, name: "Khánh Hòa", lat: 12.2585098, lon: 109.0526076 },
-    { id: 10, name: "Kiên Giang", lat: 9.8249587, lon: 105.1258955 },
-    { id: 1, name: "Kon Tum", lat: 14.3497403, lon: 108.0004606 },
-    { id: 23, name: "Lai Châu", lat: 22.3862227, lon: 103.4702631 },
-    { id: 62, name: "Lâm Đồng", lat: 11.5752791, lon: 108.1428669 },
-    { id: 24, name: "Lạng Sơn", lat: 21.853708, lon: 106.761519 },
-    { id: 22, name: "Lào Cai", lat: 22.4809431, lon: 103.9754959 },
-    { id: 7, name: "Long An", lat: 10.5607168, lon: 106.6497623 },
-    { id: 45, name: "Nam Định", lat: 20.4388225, lon: 106.1621053 },
-    { id: 14, name: "Nghệ An", lat: 19.2342489, lon: 104.9200365 },
-    { id: 44, name: "Ninh Bình", lat: 20.2506149, lon: 105.9744536 },
-    { id: 39, name: "Ninh Thuận", lat: 11.6738767, lon: 108.8629572 },
-    { id: 52, name: "Phú Thọ", lat: 21.268443, lon: 105.2045573 },
-    { id: 40, name: "Phú Yên", lat: 13.0881861, lon: 109.0928764 },
-    { id: 16, name: "Quảng Bình", lat: 17.6102715, lon: 106.3487474 },
-    { id: 42, name: "Quảng Ngãi", lat: 15.1213873, lon: 108.8044145 },
-    { id: 25, name: "Quảng Ninh", lat: 21.006382, lon: 107.2925144 },
-    { id: 17, name: "Quảng Trị", lat: 16.7403074, lon: 107.1854679 },
-    { id: 26, name: "Sóc Trăng", lat: 9.602521, lon: 105.9739049 },
-    { id: 12, name: "Sơn La", lat: 21.1022284, lon: 103.7289167 },
-    { id: 6, name: "Tây Ninh", lat: 11.3351554, lon: 106.1098854 },
-    { id: 46, name: "Thái Bình", lat: 20.4463471, lon: 106.3365828 },
-    { id: 58, name: "Thái Nguyên", lat: 21.5671559, lon: 105.8252038 },
-    { id: 13, name: "Thanh Hóa", lat: 19.806692, lon: 105.7851816 },
-    { id: 18, name: "Thừa Thiên-Huế", lat: 16.467397, lon: 107.5905326 },
-    { id: 27, name: "Tiền Giang", lat: 10.4493324, lon: 106.3420504 },
-    { id: 35, name: "Trà Vinh", lat: 9.812741, lon: 106.2992912 },
-    { id: 49, name: "Tuyên Quang", lat: 21.7767246, lon: 105.2280196 },
-    { id: 34, name: "Vĩnh Long", lat: 10.239574, lon: 105.9571928 },
-    { id: 51, name: "Vĩnh Phúc", lat: 21.3608805, lon: 105.5474373 },
-    { id: 50, name: "Yên Bái", lat: 21.7167689, lon: 104.8985878 },
-  ].slice(0, count);
+  const cities = VIETNAMPROVINCES.slice(0, count);
 
   const locationsData = await Promise.all(
     cities.map(async (city) => {
