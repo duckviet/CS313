@@ -16,6 +16,7 @@ const Dashboard: React.FC = () => {
     loading: currentLoading,
     location: currentLocation,
     setLocation: setCurrentLocation,
+    refetch: refetchCurrentData,
   } = useCurrentAirQuality();
   const { locations, loading: locationsLoading } = useNearbyLocations();
 
@@ -28,6 +29,11 @@ const Dashboard: React.FC = () => {
     console.log("Selected location:", location);
     setCurrentLocation(location);
   };
+
+  const handleReload = () => {
+    refetchCurrentData();
+  };
+
   return (
     <div className="container mx-auto px-4 py-6">
       <h1 className="text-2xl font-semibold text-neutral-800 mb-5">
@@ -42,7 +48,7 @@ const Dashboard: React.FC = () => {
             </div>
           ) : currentData ? (
             <>
-              <AQIDisplay data={currentData} />
+              <AQIDisplay data={currentData} onReload={handleReload} />
               <PollutantsOverview data={currentData} className="mt-6" />
               <HistoricalDataSection data={currentLocation} />
             </>

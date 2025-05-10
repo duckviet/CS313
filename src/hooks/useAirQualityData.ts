@@ -8,6 +8,7 @@ import {
   fetchHourlyData,
   fetchNearbyLocations,
 } from "../services/api";
+
 export const useCurrentAirQuality = () => {
   const [location, setLocation] = useState<{
     id: number;
@@ -25,6 +26,7 @@ export const useCurrentAirQuality = () => {
     data,
     isLoading: loading,
     error,
+    refetch,
   } = useQuery<AirQualityData>({
     queryKey: ["currentAirQuality", location.name, location.lat, location.lon],
     queryFn: () =>
@@ -43,6 +45,7 @@ export const useCurrentAirQuality = () => {
     error: error ? error.message : null,
     location,
     setLocation,
+    refetch,
   };
 };
 
