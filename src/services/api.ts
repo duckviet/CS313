@@ -1,10 +1,13 @@
 // api.ts
+import axios from "axios";
 import VIETNAMPROVINCES from "../constants/vietNamProvince.constant";
 import { AirQualityData, HistoricalData, LocationData } from "../types";
 import { calculateAQICategory } from "../utils/aqiCalculator";
+import { client } from "./axios";
 
 const API_KEY = "a296a1efa72bc06b0cf1897316c7224b";
 const BASE_URL = "https://pro.openweathermap.org/data/2.5";
+const NEXT_PUBLIC_BACKEND_URL = "https://2348-42-116-6-43.ngrok-free.app";
 
 const calculateAQI = (components: any): number => {
   // Simplified AQI calculation based on PM2.5
@@ -131,4 +134,56 @@ export const fetchHourlyData = async (
     no2: item.components.no2,
     o3: item.components.o3,
   }));
+};
+
+interface AQIPredictionInput {
+  AQI_Value: number;
+  CO_AQI_Value: number;
+  Ozone_AQI_Value: number;
+  NO2_AQI_Value: number;
+  PM2_5_AQI_Value: number;
+}
+
+interface AQIPredictionResponse {
+  predicted_AQI_Category: string;
+}
+
+export const predictAQICategory = async (
+  input: AQIPredictionInput
+): Promise<AQIPredictionResponse> => {
+  try {
+    const response = await client.post(
+      `${NEXT_PUBLIC_BACKEND_URL}/predict`,
+      { ...input },
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers,
+          data: error.config?.data,
+        },
+      });
+      throw new Error(
+        `API request failed: ${error.response?.statusText || error.message}`
+      );
+    }
+    console.error("Error predicting AQI category:", error);
+    throw error;
+  }
 };

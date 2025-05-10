@@ -29,7 +29,7 @@ export interface HistoricalData {
 export type AQICategory =
   | "good"
   | "moderate"
-  | "unhealthy-sensitive"
+  | "unhealthy-for-sensitive-groups"
   | "unhealthy"
   | "very-unhealthy"
   | "hazardous";
