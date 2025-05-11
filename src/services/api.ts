@@ -187,3 +187,39 @@ export const predictAQICategory = async (
     throw error;
   }
 };
+
+export const fetchPredictionData = async (
+  lat: number,
+  lon: number
+): Promise<HistoricalData[]> => {
+  // Fetch forecast data from OpenWeather API
+  const response = await fetch(
+    `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+  );
+  const data = await response.json();
+
+  // Transform forecast data into our format with predicted PM2.5 values
+  return data.list.slice(0, 8).map((item: any) => {
+    // Simple prediction based on temperature, humidity, and time of day
+    const hour = new Date(item.dt * 1000).getHours();
+    const baseValue = 12; // Base PM2.5 value
+
+    // Factors affecting PM2.5
+    const tempFactor = Math.max(0, (item.main.temp - 20) / 10); // Higher temp = higher PM2.5
+    const humidityFactor = item.main.humidity / 100; // Higher humidity = higher PM2.5
+    const timeFactor = hour >= 7 && hour <= 19 ? 1.2 : 0.8; // Higher during day
+
+    const predictedPM25 = baseValue + tempFactor * 5 + humidityFactor * 8;
+    const adjustedPM25 = predictedPM25 * timeFactor;
+
+    return {
+      date: new Date(item.dt * 1000),
+      aqi: calculateAQI({ pm2_5: adjustedPM25 }),
+      pm25: adjustedPM25,
+      pm10: adjustedPM25 * 1.5,
+      co2: 400 + Math.random() * 100,
+      no2: 20 + Math.random() * 30,
+      o3: 30 + Math.random() * 20,
+    };
+  });
+};

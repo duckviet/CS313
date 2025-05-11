@@ -9,6 +9,7 @@ import {
   useCurrentAirQuality,
   useNearbyLocations,
 } from "../hooks/useAirQualityData";
+import PredictionSection from "../components/PredictionSection";
 
 const Dashboard: React.FC = () => {
   const {
@@ -51,6 +52,7 @@ const Dashboard: React.FC = () => {
               <AQIDisplay data={currentData} onReload={handleReload} />
               <PollutantsOverview data={currentData} className="mt-6" />
               <HistoricalDataSection data={currentLocation} />
+              <PredictionSection location={currentLocation} />
             </>
           ) : (
             <Card className="p-8 text-center">
