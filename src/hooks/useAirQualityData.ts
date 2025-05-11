@@ -1,5 +1,5 @@
 // hooks.ts
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AirQualityData, HistoricalData, LocationData } from "../types";
 import {
@@ -7,6 +7,7 @@ import {
   fetchHistoricalData,
   fetchHourlyData,
   fetchNearbyLocations,
+  fetchPredictionData,
 } from "../services/api";
 
 export const useCurrentAirQuality = () => {
@@ -97,5 +98,36 @@ export const useNearbyLocations = (count: number = 63) => {
     locations: data || [],
     loading,
     error: error ? error.message : null,
+  };
+};
+export const usePredictionData = (location: {
+  lat: number | null;
+  lon: number | null;
+}) => {
+  const {
+    data,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery<HistoricalData[], Error>({
+    queryKey: ["predictionData", location.lat, location.lon],
+    queryFn: async () => {
+      if (!location.lat || !location.lon) {
+        throw new Error("Location not available");
+      }
+      return await fetchPredictionData(location.lat, location.lon);
+    },
+    enabled: !!location.lat && !!location.lon, // Only fetch if both lat and lon are available
+    staleTime: 30 * 60 * 1000, // Cache data for 30 minutes
+    refetchInterval: 30 * 60 * 1000, // Automatically refetch every 30 minutes
+    refetchOnWindowFocus: false, // Optional: disable refetch on window focus
+    retry: 1, // Retry once on failure
+  });
+
+  return {
+    data: data || [],
+    loading,
+    error: error ? error.message : null,
+    refetch,
   };
 };
