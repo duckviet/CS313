@@ -233,7 +233,7 @@ export const fetchGrouthTruthData = async (
   start_date: string = "2022-05-25",
   end_date: string = "2022-06-04"
 ): Promise<HistoricalData[]> => {
-  const response = await fetch(`http://127.0.0.1:8000/ground-truth`, {
+  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/ground-truth`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -252,7 +252,7 @@ export const fetchPredictionArima = async (
   start_date: string = "2022-05-25",
   end_date: string = "2022-06-04"
 ): Promise<PredictionResponse> => {
-  const response = await fetch(`http://127.0.0.1:8000/predict/arima`, {
+  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/predict/arima`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -270,7 +270,7 @@ export const fetchPredictionProphet = async (
   start_date: string = "2022-05-25",
   end_date: string = "2022-06-04"
 ): Promise<PredictionResponse> => {
-  const response = await fetch(`http://127.0.0.1:8000/predict/prophet`, {
+  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/predict/prophet`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -288,7 +288,7 @@ export const fetchPredictionXGBoost = async (
   start_date: string = "2022-05-25",
   end_date: string = "2022-06-04"
 ): Promise<PredictionResponse> => {
-  const response = await fetch(`http://127.0.0.1:8000/predict/xgboost`, {
+  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/predict/xgboost`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
