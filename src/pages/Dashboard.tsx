@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AQIDisplay from "../components/AQIDisplay";
 import PollutantsOverview from "../components/PollutantsOverview";
 import HistoricalDataSection from "../components/HistoricalDataSection";
@@ -10,6 +10,13 @@ import {
   useNearbyLocations,
 } from "../hooks/useAirQualityData";
 import PredictionSection from "../components/PredictionSection";
+import HealthAdviceSection from "../components/HealthAdvanceSection";
+import {
+  fetchGrouthTruthData,
+  fetchPredictionArima,
+  fetchPredictionProphet,
+} from "../services/api";
+import ComparisonSection from "../components/ComparisonSection";
 
 const Dashboard: React.FC = () => {
   const {
@@ -42,6 +49,7 @@ const Dashboard: React.FC = () => {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* <ComparisonSection className="lg:col-span-3" /> */}
         <div className="lg:col-span-2">
           {currentLoading ? (
             <div className="h-60 flex items-center justify-center">
@@ -53,6 +61,12 @@ const Dashboard: React.FC = () => {
               <PollutantsOverview data={currentData} className="mt-6" />
               <HistoricalDataSection data={currentLocation} />
               <PredictionSection location={currentLocation} />
+
+              <HealthAdviceSection
+                category={currentData.category}
+                className="mt-6"
+                currentData={currentData}
+              />
             </>
           ) : (
             <Card className="p-8 text-center">

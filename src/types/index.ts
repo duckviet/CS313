@@ -18,12 +18,14 @@ export interface AirQualityData {
 
 export interface HistoricalData {
   date: Date;
-  aqi: number;
   pm25: number;
-  pm10: number;
-  co2: number;
-  no2: number;
-  o3: number;
+}
+
+export interface PredictionResponse {
+  predictions: Array<{
+    date: string;
+    predicted_pm25: number;
+  }>;
 }
 
 export type AQICategory =
