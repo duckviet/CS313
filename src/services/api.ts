@@ -1,7 +1,12 @@
 // api.ts
 import axios from "axios";
 import VIETNAMPROVINCES from "../constants/vietNamProvince.constant";
-import { AirQualityData, HistoricalData, LocationData } from "../types";
+import {
+  AirQualityData,
+  HistoricalData,
+  LocationData,
+  PredictionResponse,
+} from "../types";
 import { calculateAQICategory } from "../utils/aqiCalculator";
 import { client } from "./axios";
 
@@ -222,4 +227,77 @@ export const fetchPredictionData = async (
       o3: 30 + Math.random() * 20,
     };
   });
+};
+
+export const fetchGrouthTruthData = async (
+  start_date: string = "2022-05-25",
+  end_date: string = "2022-06-04"
+): Promise<HistoricalData[]> => {
+  const response = await fetch(`http://127.0.0.1:8000/ground-truth`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      start_date: start_date,
+      end_date: end_date,
+    }),
+  });
+  const data = await response.json();
+  // Ensure we return an array of HistoricalData
+  return data.ground_truth;
+};
+
+export const fetchPredictionArima = async (
+  start_date: string = "2022-05-25",
+  end_date: string = "2022-06-04"
+): Promise<PredictionResponse> => {
+  const response = await fetch(`http://127.0.0.1:8000/predict/arima`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      start_date: start_date,
+      end_date: end_date,
+    }),
+  });
+  const data = await response.json();
+  return data;
+};
+
+export const fetchPredictionProphet = async (
+  start_date: string = "2022-05-25",
+  end_date: string = "2022-06-04"
+): Promise<PredictionResponse> => {
+  const response = await fetch(`http://127.0.0.1:8000/predict/prophet`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      start_date: start_date,
+      end_date: end_date,
+    }),
+  });
+  const data = await response.json();
+  return data;
+};
+
+export const fetchPredictionXGBoost = async (
+  start_date: string = "2022-05-25",
+  end_date: string = "2022-06-04"
+): Promise<PredictionResponse> => {
+  const response = await fetch(`http://127.0.0.1:8000/predict/xgboost`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      start_date: start_date,
+      end_date: end_date,
+    }),
+  });
+  const data = await response.json();
+  return data;
 };

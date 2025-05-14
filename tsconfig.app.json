@@ -18,7 +18,13 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* SVG */
+    "types": ["vite-plugin-svgr/client"],
+    "paths": {
+      "public/*": ["./public/*"]
+    }
   },
   "include": ["src"]
 }
