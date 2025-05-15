@@ -172,78 +172,28 @@ const calculateMetrics = (
   predictions: HistoricalData[]
 ): ModelMetrics => {
   // Align predictions with ground truth by date
-  // Only consider dates present in both ground truth and predictions
-  const alignedData = groundTruth
-    .map((gt) => {
-      const gtDate = new Date(gt.date);
-      const pred = predictions.find((p) => {
-        const predDate = new Date(p.date);
-        // Compare timestamps for exact match
-        return predDate.getTime() === gtDate.getTime();
-      });
-      // Only include if a prediction exists for this date
-      return pred ? { gt: gt.pm25, pred: pred.pm25 } : null;
-    })
-    .filter((item): item is { gt: number; pred: number } => item !== null); // Filter out null entries
-
-  if (alignedData.length === 0) {
-    // Handle case where there's no overlapping data points
-    return {
-      mae: 0, // Or NaN, depending on desired behavior for no data
-      rmse: 0, // Or NaN
-    };
-  }
-
+  const alignedData = groundTruth.map((gt) => {
+    const gtDate = new Date(gt.date);
+    const pred = predictions.find((p) => {
+      const predDate = new Date(p.date);
+      return predDate.getTime() === gtDate.getTime();
+    });
+    return { gt: gt.pm25, pred: pred?.pm25 || 0 };
+  });
   // Calculate MAE
   const mae =
     alignedData.reduce((sum, { gt, pred }) => sum + Math.abs(gt - pred), 0) /
     alignedData.length;
-
   // Calculate RMSE
   const rmse = Math.sqrt(
     alignedData.reduce((sum, { gt, pred }) => sum + Math.pow(gt - pred, 2), 0) /
       alignedData.length
   );
-
-  // --- Thêm phần tính range và chuẩn hóa ---
-
-  // Lấy tất cả các giá trị ground truth từ dữ liệu đã được căn chỉnh
-  const gtValues = alignedData.map((item) => item.gt);
-
-  const minGt = Math.min(...gtValues);
-  const maxGt = Math.max(...gtValues);
-  const yRange = maxGt - minGt;
-
-  let normalizedMae: number;
-  let normalizedRmse: number;
-
-  // Chuẩn hóa chỉ khi range lớn hơn 0 để tránh chia cho 0
-  if (yRange > 0) {
-    normalizedMae = mae / yRange;
-    normalizedRmse = rmse / yRange;
-  } else {
-    // Xử lý trường hợp range bằng 0
-    // Nếu range là 0 và lỗi (mae/rmse) cũng là 0, thì chuẩn hóa là 0.
-    // Nếu range là 0 và lỗi > 0, lỗi chuẩn hóa sẽ là Infinity hoặc NaN.
-    // Chọn trả về 0 nếu cả lỗi và range là 0, còn không trả về Infinity/NaN.
-    // Theo ví dụ Python, nó không xử lý chia cho 0 rõ ràng, có thể dẫn đến Inf/NaN.
-    // Ta sẽ trả về 0 nếu range là 0 (ngầm hiểu là dữ liệu không biến động),
-    // hoặc Infinity/NaN nếu mae/rmse > 0 và range là 0.
-    // Cách phổ biến hơn là trả về 0 trong trường hợp range là 0.
-    normalizedMae = mae === 0 ? 0 : Infinity; // Hoặc 0 nếu muốn tránh Infinity
-    normalizedRmse = rmse === 0 ? 0 : Infinity; // Hoặc 0 nếu muốn tránh Infinity
-
-    // Hoặc đơn giản là luôn trả về 0 khi range là 0 nếu hành vi này là mong muốn
-    // normalizedMae = 0;
-    // normalizedRmse = 0;
-  }
-
   return {
-    mae: Number(normalizedMae.toFixed(4)),
-    rmse: Number(normalizedRmse.toFixed(4)),
+    mae: Number(mae.toFixed(2)),
+    rmse: Number(rmse.toFixed(2)),
   };
 };
-
 const StatCard: React.FC<{ title: string; stats: Statistics }> = ({
   title,
   stats,
