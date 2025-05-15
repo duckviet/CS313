@@ -301,3 +301,21 @@ export const fetchPredictionXGBoost = async (
   const data = await response.json();
   return data;
 };
+
+export const fetchPredictionLSTM = async (
+  start_date: string = "2022-05-25",
+  end_date: string = "2022-06-04"
+): Promise<PredictionResponse> => {
+  const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/predict/lstm`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      start_date: start_date,
+      end_date: end_date,
+    }),
+  });
+  const data = await response.json();
+  return data;
+};

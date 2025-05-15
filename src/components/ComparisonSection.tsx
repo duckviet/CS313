@@ -6,6 +6,7 @@ import {
   fetchPredictionArima,
   fetchPredictionProphet,
   fetchPredictionXGBoost,
+  fetchPredictionLSTM,
 } from "../services/api";
 import { HistoricalData, PredictionResponse } from "../types";
 import { cn } from "../lib/utils";
@@ -319,6 +320,7 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
     arima: HistoricalData[];
     prophet: HistoricalData[];
     xgboost: HistoricalData[];
+    lstm: HistoricalData[];
   } | null>(null);
 
   const calculateDailyAverage = (data: HistoricalData[]): HistoricalData[] => {
@@ -349,11 +351,12 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const [groundTruth, arima, prophet, xgboost] = await Promise.all([
+      const [groundTruth, arima, prophet, xgboost, lstm] = await Promise.all([
         fetchGrouthTruthData(startDate, endDate),
         fetchPredictionArima(startDate, endDate),
         fetchPredictionProphet(startDate, endDate),
         fetchPredictionXGBoost(startDate, endDate),
+        fetchPredictionLSTM(startDate, endDate),
       ]);
 
       // Ensure all data is in the correct format
@@ -373,6 +376,12 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
           : [],
         xgboost: Array.isArray(xgboost?.predictions)
           ? xgboost.predictions.map((p) => ({
+              date: new Date(p.date),
+              pm25: p.predicted_pm25,
+            }))
+          : [],
+        lstm: Array.isArray(lstm?.predictions)
+          ? lstm.predictions.map((p) => ({
               date: new Date(p.date),
               pm25: p.predicted_pm25,
             }))
@@ -397,6 +406,10 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
           timeInterval === "day"
             ? calculateDailyAverage(formattedData.xgboost)
             : formattedData.xgboost,
+        lstm:
+          timeInterval === "day"
+            ? calculateDailyAverage(formattedData.lstm)
+            : formattedData.lstm,
       };
 
       setData(processedData);
@@ -415,6 +428,7 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
       arima: calculateStatistics(data.arima),
       prophet: calculateStatistics(data.prophet),
       xgboost: calculateStatistics(data.xgboost),
+      lstm: calculateStatistics(data.lstm),
     };
   }, [data]);
 
@@ -438,6 +452,7 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
       arima: processData(data.arima),
       prophet: processData(data.prophet),
       xgboost: processData(data.xgboost),
+      lstm: processData(data.lstm),
     };
   }, [data, chartMode]);
 
@@ -448,6 +463,7 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
       arima: calculateMetrics(data.groundTruth, data.arima),
       prophet: calculateMetrics(data.groundTruth, data.prophet),
       xgboost: calculateMetrics(data.groundTruth, data.xgboost),
+      lstm: calculateMetrics(data.groundTruth, data.lstm),
     };
   }, [data]);
 
@@ -561,6 +577,36 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
                 </div>
               </div>
             </div>
+            {/* LSTM Section */}
+            <div className="bg-white rounded-xl shadow">
+              <div className="p-4 border-b border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  LSTM Prediction
+                </h3>
+              </div>
+              <div className="grid grid-cols-4 gap-6 p-4">
+                <div className="col-span-3">
+                  <Chart
+                    data={processedData.lstm}
+                    type={chartType}
+                    dataKey="pm25"
+                    title="LSTM Prediction"
+                    loading={loading}
+                    height={300}
+                    color={
+                      AQI_COLORS[
+                        getAQICategory(statistics?.lstm.aqi.average || 0)
+                      ] || AQI_COLORS.good
+                    }
+                  />
+                </div>
+                <div className="col-span-1">
+                  {statistics && (
+                    <StatCard title="LSTM Prediction" stats={statistics.lstm} />
+                  )}
+                </div>
+              </div>
+            </div>
             {/* XGBoost Section */}
             <div className="bg-white rounded-xl shadow">
               <div className="p-4 border-b border-gray-200">
@@ -594,6 +640,7 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
                 </div>
               </div>
             </div>
+
             {/* Prophet Section */}
             <div className="bg-white rounded-xl shadow">
               <div className="p-4 border-b border-gray-200">
@@ -663,7 +710,7 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
             </div>
 
             {/* Model Comparison Metrics */}
-            <div className="bg-white rounded-xl shadow">
+            {/* <div className="bg-white rounded-xl shadow">
               <div className="p-4 border-b border-gray-200">
                 <h3 className="text-xl font-semibold text-gray-800">
                   Model Comparison Metrics
@@ -688,7 +735,6 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
                     <tbody className="bg-white divide-y divide-gray-200">
                       {modelMetrics && (
                         <>
-                          {" "}
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                               XGBoost
@@ -722,13 +768,24 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
                               {modelMetrics.arima.rmse}
                             </td>
                           </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              LSTM
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {modelMetrics.lstm.mae}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {modelMetrics.lstm.rmse}
+                            </td>
+                          </tr>
                         </>
                       )}
                     </tbody>
                   </table>
                 </div>
                 <div className="mt-4 text-sm text-gray-500">
-                  {/* <p className="mb-2">
+                  <p className="mb-2">
                     <strong>MAE (Mean Absolute Error):</strong> Average absolute
                     difference between predicted and actual values. Lower is
                     better.
@@ -736,10 +793,10 @@ const ComparisonSection: React.FC<ComparisonSectionProps> = ({
                   <p className="mb-2">
                     <strong>RMSE (Root Mean Square Error):</strong> Square root
                     of the average squared differences. Lower is better.
-                  </p> */}
+                  </p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         ) : (
           <div className="text-center py-8 text-neutral-500">
